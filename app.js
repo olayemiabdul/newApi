@@ -21,21 +21,21 @@ let products = [
     name: 'Product A',
     description: 'Description for Product A',
     price: 29.99,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com//images/app1.png'
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/app1.png'
   },
   {
     id: 2,
     name: 'Product B',
     description: 'Description for Product B',
     price: 49.99,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com//images/app2.png'
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/app2.png'
   },
   {
     id: 3,
     name: 'Product C',
     description: 'Description for Product C',
     price: 19.99,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com//images/app3.png'
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/app3.png'
   }
 ];
 
@@ -46,21 +46,21 @@ let shoes = [
     name: 'Shoe A',
     description: 'Description for Shoe A',
     price: 29.99,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com//images/nike1.jpg' // Full URL
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg' // Full URL
   },
   {
     id: 2,
     name: 'Shoe B',
     description: 'Description for Shoe B',
     price: 49.99,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com//images/nike2.jpg' // Full URL
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike2.jpg' // Full URL
   },
   {
     id: 3,
     name: 'Shoe C',
     description: 'Description for Shoe C',
     price: 19.99,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com//images/nike1.jpg' // Full URL
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg' // Full URL
   }
 ];
 
