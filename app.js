@@ -2,20 +2,14 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
-const path = require('path'); 
-const bodyParser = require('body-parser');
+const path = require('path');
 
-// Middleware to parse JSON requests
+// Middleware to parse JSON and URL-encoded data
+app.use(express.json()); // to parse application/json
+app.use(express.urlencoded({ extended: true })); // to parse application/x-www-form-urlencoded
 
-app.use(express.json());
-app.use(bodyParser.json()); // to parse application/json
-app.use(bodyParser.urlencoded({ extended: true })); 
-
-
-
+// Serve static files
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
-
-
 
 let products = [
   {
@@ -82,7 +76,6 @@ app.get('/products/:id', (req, res) => {
   if (!product) return res.status(404).json({ error: 'Product not found' });
   res.json(product);
 });
-
 
 // Start the server
 app.listen(port, () => {
