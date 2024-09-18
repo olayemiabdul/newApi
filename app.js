@@ -3,9 +3,13 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 const path = require('path');
+const cors = require('cors'); 
+const bodyParser = require('body-parser');
 
 // Middleware to parse JSON and URL-encoded data
-app.use(express.json()); // to parse application/json
+app.use(cors()); 
+app.use(express.json());
+app.use(bodyParser.json()); 
 app.use(express.urlencoded({ extended: true })); // to parse application/x-www-form-urlencoded
 
 // Serve static files
