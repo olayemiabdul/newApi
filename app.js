@@ -5,12 +5,13 @@ const port = process.env.PORT || 3000;
 const path = require('path'); 
 
 // Middleware to parse JSON requests
-app.use(express.json());
+app.use(bodyParser.json()); // to parse application/json
+app.use(bodyParser.urlencoded({ extended: true })); 
 
 
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-// Example product data
+
 let products = [
   {
     id: 1,
