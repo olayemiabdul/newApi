@@ -21,21 +21,21 @@ let products = [
     name: 'Product A',
     description: 'Description for Product A',
     price: 29.99,
-    imageUrl: '/images/app1.png'
+    imageUrl: 'http://localhost:3000/images/app1.png'
   },
   {
     id: 2,
     name: 'Product B',
     description: 'Description for Product B',
     price: 49.99,
-    imageUrl: '/images/app2.png'
+    imageUrl: 'http://localhost:3000/images/app2.png'
   },
   {
     id: 3,
     name: 'Product C',
     description: 'Description for Product C',
     price: 19.99,
-    imageUrl: '/images/app3.png'
+    imageUrl: 'http://localhost:3000/images/app3.png'
   }
 ];
 
@@ -46,23 +46,24 @@ let shoes = [
     name: 'Shoe A',
     description: 'Description for Shoe A',
     price: 29.99,
-    imageUrl: '/images/nike1.jpg'
+    imageUrl: 'http://localhost:3000/images/nike1.jpg' // Full URL
   },
   {
     id: 2,
     name: 'Shoe B',
     description: 'Description for Shoe B',
     price: 49.99,
-    imageUrl: '/images/nike2.jpg'
+    imageUrl: 'http://localhost:3000/images/nike2.jpg' // Full URL
   },
   {
     id: 3,
     name: 'Shoe C',
     description: 'Description for Shoe C',
     price: 19.99,
-    imageUrl: '/images/nike1.jpg'
+    imageUrl: 'http://localhost:3000/images/nike1.jpg' // Full URL
   }
 ];
+
 
 // Get all products
 app.get('/products', (req, res) => {
