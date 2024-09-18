@@ -2,11 +2,12 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
+const path = require('path'); 
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Middleware to serve static files (images)
+
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
 // Example product data
@@ -16,21 +17,21 @@ let products = [
     name: 'Product A',
     description: 'Description for Product A',
     price: 29.99,
-    imageUrl: '/images/app1.jpg'
+    imageUrl: '/images/app1.png'
   },
   {
     id: 2,
     name: 'Product B',
     description: 'Description for Product B',
     price: 49.99,
-    imageUrl: '/images/app111.jpg'
+    imageUrl: '/images/app2.png'
   },
   {
     id: 3,
     name: 'Product C',
     description: 'Description for Product C',
     price: 19.99,
-    imageUrl: '/images/appicon1.png'
+    imageUrl: '/images/app3.png'
   }
 ];
 
