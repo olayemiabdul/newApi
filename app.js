@@ -6,11 +6,15 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 // Middleware to parse JSON requests
+
+app.use(express.json());
 app.use(bodyParser.json()); // to parse application/json
 app.use(bodyParser.urlencoded({ extended: true })); 
 
 
+
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
 
 
 let products = [
