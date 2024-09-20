@@ -94,6 +94,7 @@ app.get('/shoes/:id', (req, res) => {
   const shoe = shoes.find(p => p.id === parseInt(req.params.id));
   if (!shoe) return res.status(404).json({ error: 'Shoe not found' });
   res.json(shoe);
+  console.log(shoes)
 });
 
 // POST - Add a new product
