@@ -6,7 +6,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 // Middleware to parse JSON and URL-encoded data
-app.use(cors()); 
+const cors = require('cors');
+app.use(cors({ origin: '*' }));
+
 app.use(express.json());
 app.use(bodyParser.json()); 
 app.use(express.urlencoded({ extended: true })); // to parse application/x-www-form-urlencoded
@@ -71,15 +73,18 @@ let shoes = [
 
 // Variable to keep track of the last ID
 let lastId = products.length > shoes.length ? products[products.length - 1].id : shoes[shoes.length - 1].id;
+const newProductId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
 
 // Get all products
 app.get('/products', (req, res) => {
   res.json(products);
+  console.log(req.body); 
 });
 
 // Get all shoes
 app.get('/shoes', (req, res) => {
   res.json(shoes);
+  console.log(req.body); 
 });
 
 // Get product by ID
@@ -99,7 +104,7 @@ app.get('/shoes/:id', (req, res) => {
 
 // POST - Add a new product
 app.post('/products', (req, res) => {
-  const newId = ++lastId;
+  const newId = ++newProductId;
   const newProduct = {
     id: newId,
     name: req.body.name,
@@ -114,7 +119,7 @@ app.post('/products', (req, res) => {
 
 // POST - Add a new shoe
 app.post('/shoes', (req, res) => {
-  const newId = ++lastId;
+  const newId = ++newProductId;
   const newShoe = {
     id: newId,
     name: req.body.name,
