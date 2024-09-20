@@ -72,8 +72,8 @@ let shoes = [
 
 // Variable to keep track of the last ID
 let lastId = products.length > shoes.length ? products[products.length - 1].id : shoes[shoes.length - 1].id;
-const newProductId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-
+//const newProductId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+newProductId=3;
 // Get all products
 app.get('/products', (req, res) => {
   res.json(products);
