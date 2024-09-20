@@ -4,13 +4,25 @@ const port = process.env.PORT || 3000;
 const path = require('path');
 const cors = require('cors'); 
 const bodyParser = require('body-parser');
+const multer = require('multer'); // Import multer
 
 // Middleware to parse JSON and URL-encoded data
 app.use(cors());
-
 app.use(express.json());
-app.use(bodyParser.json()); 
-app.use(express.urlencoded({ extended: true })); // to parse application/x-www-form-urlencoded
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images/'); // Directory where the images will be saved
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Filename format
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // Serve static files
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
@@ -50,7 +62,7 @@ let shoes = [
     description: 'Description for Shoe A',
     price: 29.99,
     quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg' // Full URL
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg'
   },
   {
     id: 2,
@@ -58,7 +70,7 @@ let shoes = [
     description: 'Description for Shoe B',
     price: 49.99,
     quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike2.jpg' // Full URL
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike2.jpg'
   },
   {
     id: 3,
@@ -66,43 +78,26 @@ let shoes = [
     description: 'Description for Shoe C',
     price: 19.99,
     quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg' // Full URL
+    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg'
   }
 ];
 
 // Variable to keep track of the last ID
 let lastId = products.length > shoes.length ? products[products.length - 1].id : shoes[shoes.length - 1].id;
-//const newProductId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-newProductId=3;
+let newProductId = 3;
+
 // Get all products
 app.get('/products', (req, res) => {
   res.json(products);
-  console.log(req.body); 
 });
 
 // Get all shoes
 app.get('/shoes', (req, res) => {
   res.json(shoes);
-  console.log(req.body); 
 });
 
-// Get product by ID
-app.get('/products/:id', (req, res) => {
-  const product = products.find(p => p.id === parseInt(req.params.id));
-  if (!product) return res.status(404).json({ error: 'Product not found' });
-  res.json(product);
-});
-
-// Get shoe by ID
-app.get('/shoes/:id', (req, res) => {
-  const shoe = shoes.find(p => p.id === parseInt(req.params.id));
-  if (!shoe) return res.status(404).json({ error: 'Shoe not found' });
-  res.json(shoe);
-  console.log(shoes)
-});
-
-// POST - Add a new product
-app.post('/products', (req, res) => {
+// POST - Add a new product with image upload
+app.post('/products', upload.single('image'), (req, res) => {
   const newId = ++newProductId;
   const newProduct = {
     id: newId,
@@ -110,14 +105,14 @@ app.post('/products', (req, res) => {
     description: req.body.description,
     price: req.body.price,
     quantity: req.body.quantity,
-    imageUrl: req.body.imageUrl
+    imageUrl: req.file ? `/images/${req.file.filename}` : req.body.imageUrl
   };
   products.push(newProduct);
   res.status(201).json(newProduct);
 });
 
-// POST - Add a new shoe
-app.post('/shoes', (req, res) => {
+// POST - Add a new shoe with image upload
+app.post('/shoes', upload.single('image'), (req, res) => {
   const newId = ++newProductId;
   const newShoe = {
     id: newId,
@@ -125,96 +120,10 @@ app.post('/shoes', (req, res) => {
     description: req.body.description,
     price: req.body.price,
     quantity: req.body.quantity,
-    imageUrl: req.body.imageUrl
+    imageUrl: req.file ? `/images/${req.file.filename}` : req.body.imageUrl
   };
   shoes.push(newShoe);
   res.status(201).json(newShoe);
-});
-
-// PATCH - Partially update a product
-app.patch('/products/:id', (req, res) => {
-  const product = products.find(p => p.id === parseInt(req.params.id));
-  if (!product) return res.status(404).json({ message: 'Product not found' });
-
-  if (req.body.name) product.name = req.body.name;
-  if (req.body.description) product.description = req.body.description;
-  if (req.body.price) product.price = req.body.price;
-  if (req.body.quantity) product.quantity = req.body.quantity;
-  if (req.body.imageUrl) product.imageUrl = req.body.imageUrl;
-
-  res.json(product);
-});
-
-// PATCH - Partially update a shoe
-app.patch('/shoes/:id', (req, res) => {
-  const shoe = shoes.find(p => p.id === parseInt(req.params.id));
-  if (!shoe) return res.status(404).json({ message: 'Shoe not found' });
-
-  if (req.body.name) shoe.name = req.body.name;
-  if (req.body.description) shoe.description = req.body.description;
-  if (req.body.price) shoe.price = req.body.price;
-  if (req.body.quantity) shoe.quantity = req.body.quantity;
-  if (req.body.imageUrl) shoe.imageUrl = req.body.imageUrl;
-
-  res.json(shoe);
-});
-
-// PUT - Replace a product
-app.put('/products/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = products.findIndex(p => p.id === id);
-
-  if (index === -1) return res.status(404).json({ message: 'Product not found' });
-
-  const replacementProduct = {
-    id: id,
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    quantity: req.body.quantity,
-    imageUrl: req.body.imageUrl
-  };
-
-  products[index] = replacementProduct;
-  res.json(replacementProduct);
-});
-
-// PUT - Replace a shoe
-app.put('/shoes/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = shoes.findIndex(p => p.id === id);
-
-  if (index === -1) return res.status(404).json({ message: 'Shoe not found' });
-
-  const replacementShoe = {
-    id: id,
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    quantity: req.body.quantity,
-    imageUrl: req.body.imageUrl
-  };
-
-  shoes[index] = replacementShoe;
-  res.json(replacementShoe);
-});
-
-// DELETE a product by ID
-app.delete('/products/:id', (req, res) => {
-  const index = products.findIndex(p => p.id === parseInt(req.params.id));
-  if (index === -1) return res.status(404).json({ message: 'Product not found' });
-
-  products.splice(index, 1);
-  res.json({ message: 'Product deleted' });
-});
-
-// DELETE a shoe by ID
-app.delete('/shoes/:id', (req, res) => {
-  const index = shoes.findIndex(p => p.id === parseInt(req.params.id));
-  if (index === -1) return res.status(404).json({ message: 'Shoe not found' });
-
-  shoes.splice(index, 1);
-  res.json({ message: 'Shoe deleted' });
 });
 
 // Start the server
