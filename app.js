@@ -6,8 +6,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 // Middleware to parse JSON and URL-encoded data
-const cors = require('cors');
-app.use(cors({ origin: '*' }));
+app.use(cors());
 
 app.use(express.json());
 app.use(bodyParser.json()); 
