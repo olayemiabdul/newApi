@@ -4,13 +4,13 @@ const port = process.env.PORT || 3000;
 const path = require('path');
 const cors = require('cors'); 
 const bodyParser = require('body-parser');
+const fs = require('fs'); 
 
 // Middleware to parse JSON and URL-encoded data
 app.use(cors()); 
 app.use(express.json());
 app.use(bodyParser.json()); 
-app.use(express.urlencoded({ extended: true })); // to parse application/x-www-form-urlencoded
-
+app.use(express.urlencoded({ extended: true })); 
 
 const dataPath = path.join(__dirname, 'data.json');
 const imagePath = path.join(__dirname, 'public/images');
@@ -18,21 +18,37 @@ const imagePath = path.join(__dirname, 'public/images');
 const multer = require('multer');
 const upload = multer({ dest: imagePath });
 
-app.use('/images', express.static(path.join(imagePath)));
+// Serve images statically
+app.use('/images', express.static(imagePath));
+
+//  initialize data
+if (!fs.existsSync(dataPath)) {
+  fs.writeFileSync(dataPath, JSON.stringify({ products: [], shoes: [] }), 'utf-8');
+}
 
 let products = [];
 let shoes = [];
 
+// Load data from data.json
+const loadData = () => {
+  try {
+    const rawData = fs.readFileSync(dataPath, 'utf-8');
+    const data = JSON.parse(rawData);
+    products = data.products || [];
+    shoes = data.shoes || [];
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
+};
 
-if (fs.existsSync(dataPath)) {
-  const rawData = fs.readFileSync(dataPath, 'utf-8');
-  const data = JSON.parse(rawData);
-  products = data.products || [];
-  shoes = data.shoes || [];
-}
+// Save data to data.json
 const saveData = () => {
   fs.writeFileSync(dataPath, JSON.stringify({ products, shoes }, null, 2), 'utf-8');
 };
+
+
+loadData();
+
 // Variable to keep track of the last ID
 let lastId = products.length > shoes.length ? products[products.length - 1].id : shoes[shoes.length - 1].id;
 
@@ -58,13 +74,10 @@ app.get('/shoes/:id', (req, res) => {
   const shoe = shoes.find(p => p.id === parseInt(req.params.id));
   if (!shoe) return res.status(404).json({ error: 'Shoe not found' });
   res.json(shoe);
-  console.log(shoes)
+  console.log(shoes);
 });
 
 // POST - Add a new product
-
-
-
 app.post('/products', upload.single('image'), (req, res) => {
   const { name, description, price, quantity } = req.body;
   const imageUrl = req.file ? `/images/${req.file.filename}` : req.body.imageUrl;
@@ -84,12 +97,12 @@ app.post('/products', upload.single('image'), (req, res) => {
   console.log('Request to create product received:', req.body);
 });
 
-
+// POST - Add a new shoe
 app.post('/shoes', upload.single('image'), (req, res) => {
   const { name, description, price, quantity } = req.body;
-  const imageUrl = req.file ? `/images/${req.file.filename}`: req.body.imageUrl;
+  const imageUrl = req.file ? `/images/${req.file.filename}` : req.body.imageUrl;
 
-  const newProduct = {
+  const newShoe = {
     id: shoes.length ? shoes[shoes.length - 1].id + 1 : 1,
     name,
     description,
@@ -98,40 +111,11 @@ app.post('/shoes', upload.single('image'), (req, res) => {
     imageUrl,
   };
 
-  shoes.push(newProduct);
+  shoes.push(newShoe);
   saveData();
-  res.status(201).json(newProduct);
-  console.log('Request to create product received:', req.body);
+  res.status(201).json(newShoe);
+  console.log('Request to create shoe received:', req.body);
 });
-// app.post('/products', (req, res) => {
-//   const newId = ++lastId;
-//   const newProduct = {
-//     id: newId,
-//     name: req.body.name,
-//     description: req.body.description,
-//     price: req.body.price,
-//     quantity: req.body.quantity,
-//     imageUrl: req.body.imageUrl
-//   };
-//   products.push(newProduct);
-//   res.status(201).json(newProduct);
-// });
-
-
-// // POST - Add a new shoe
-// app.post('/shoes', (req, res) => {
-//   const newId = ++lastId;
-//   const newShoe = {
-//     id: newId,
-//     name: req.body.name,
-//     description: req.body.description,
-//     price: req.body.price,
-//     quantity: req.body.quantity,
-//     imageUrl: req.body.imageUrl
-//   };
-//   shoes.push(newShoe);
-//   res.status(201).json(newShoe);
-// });
 
 // PATCH - Partially update a product
 app.patch('/products/:id', (req, res) => {
@@ -144,6 +128,7 @@ app.patch('/products/:id', (req, res) => {
   if (req.body.quantity) product.quantity = req.body.quantity;
   if (req.body.imageUrl) product.imageUrl = req.body.imageUrl;
 
+  saveData();
   res.json(product);
 });
 
@@ -158,6 +143,7 @@ app.patch('/shoes/:id', (req, res) => {
   if (req.body.quantity) shoe.quantity = req.body.quantity;
   if (req.body.imageUrl) shoe.imageUrl = req.body.imageUrl;
 
+  saveData();
   res.json(shoe);
 });
 
@@ -174,10 +160,11 @@ app.put('/products/:id', (req, res) => {
     description: req.body.description,
     price: req.body.price,
     quantity: req.body.quantity,
-    imageUrl: req.body.imageUrl
+    imageUrl: req.body.imageUrl,
   };
 
   products[index] = replacementProduct;
+  saveData();
   res.json(replacementProduct);
 });
 
@@ -194,10 +181,11 @@ app.put('/shoes/:id', (req, res) => {
     description: req.body.description,
     price: req.body.price,
     quantity: req.body.quantity,
-    imageUrl: req.body.imageUrl
+    imageUrl: req.body.imageUrl,
   };
 
   shoes[index] = replacementShoe;
+  saveData();
   res.json(replacementShoe);
 });
 
@@ -207,6 +195,7 @@ app.delete('/products/:id', (req, res) => {
   if (index === -1) return res.status(404).json({ message: 'Product not found' });
 
   products.splice(index, 1);
+  saveData();
   res.json({ message: 'Product deleted' });
 });
 
@@ -216,6 +205,7 @@ app.delete('/shoes/:id', (req, res) => {
   if (index === -1) return res.status(404).json({ message: 'Shoe not found' });
 
   shoes.splice(index, 1);
+  saveData();
   res.json({ message: 'Shoe deleted' });
 });
 
