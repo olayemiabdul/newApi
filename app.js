@@ -79,6 +79,7 @@ app.post('/products', upload.single('image'), (req, res) => {
   };
 
   products.push(newProduct);
+  saveData();
   res.status(201).json(newProduct);
   console.log('Request to create product received:', req.body);
 });
@@ -98,6 +99,7 @@ app.post('/shoes', upload.single('image'), (req, res) => {
   };
 
   shoes.push(newProduct);
+  saveData();
   res.status(201).json(newProduct);
   console.log('Request to create product received:', req.body);
 });
