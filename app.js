@@ -67,7 +67,7 @@ app.get('/shoes/:id', (req, res) => {
 
 app.post('/products', upload.single('image'), (req, res) => {
   const { name, description, price, quantity } = req.body;
-  const imageUrl = req.file ? req.file.path : req.body.imageUrl;
+  const imageUrl = req.file ? `/images/${req.file.filename}` : req.body.imageUrl;
 
   const newProduct = {
     id: products.length ? products[products.length - 1].id + 1 : 1,
@@ -86,7 +86,7 @@ app.post('/products', upload.single('image'), (req, res) => {
 
 app.post('/shoes', upload.single('image'), (req, res) => {
   const { name, description, price, quantity } = req.body;
-  const imageUrl = req.file ? req.file.path : req.body.imageUrl;
+  const imageUrl = req.file ? `/images/${req.file.filename}`: req.body.imageUrl;
 
   const newProduct = {
     id: shoes.length ? shoes[shoes.length - 1].id + 1 : 1,
