@@ -11,64 +11,28 @@ app.use(express.json());
 app.use(bodyParser.json()); 
 app.use(express.urlencoded({ extended: true })); // to parse application/x-www-form-urlencoded
 
-// Serve static files
-app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-let products = [
-  {
-    id: 1,
-    name: 'Product A',
-    description: 'Description for Product A',
-    price: 29.99,
-    quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/app1.png'
-  },
-  {
-    id: 2,
-    name: 'Product B',
-    description: 'Description for Product B',
-    price: 49.99,
-    quantity: 9,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/app2.png'
-  },
-  {
-    id: 3,
-    name: 'Product C',
-    description: 'Description for Product C',
-    price: 19.99,
-    quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/app3.png'
-  }
-];
+const dataPath = path.join(__dirname, 'data.json');
+const imagePath = path.join(__dirname, 'public/images');
 
-// Shoe data
-let shoes = [
-  {
-    id: 1,
-    name: 'Shoe A',
-    description: 'Description for Shoe A',
-    price: 29.99,
-    quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg' // Full URL
-  },
-  {
-    id: 2,
-    name: 'Shoe B',
-    description: 'Description for Shoe B',
-    price: 49.99,
-    quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike2.jpg' // Full URL
-  },
-  {
-    id: 3,
-    name: 'Shoe C',
-    description: 'Description for Shoe C',
-    price: 19.99,
-    quantity: 10,
-    imageUrl: 'https://nadstore-1c5d66f32aff.herokuapp.com/images/nike1.jpg' // Full URL
-  }
-];
+const multer = require('multer');
+const upload = multer({ dest: imagePath });
 
+app.use('/images', express.static(path.join(imagePath)));
+
+let products = [];
+let shoes = [];
+
+
+if (fs.existsSync(dataPath)) {
+  const rawData = fs.readFileSync(dataPath, 'utf-8');
+  const data = JSON.parse(rawData);
+  products = data.products || [];
+  shoes = data.shoes || [];
+}
+const saveData = () => {
+  fs.writeFileSync(dataPath, JSON.stringify({ products, shoes }, null, 2), 'utf-8');
+};
 // Variable to keep track of the last ID
 let lastId = products.length > shoes.length ? products[products.length - 1].id : shoes[shoes.length - 1].id;
 
@@ -99,15 +63,14 @@ app.get('/shoes/:id', (req, res) => {
 
 // POST - Add a new product
 
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+
 
 app.post('/products', upload.single('image'), (req, res) => {
   const { name, description, price, quantity } = req.body;
   const imageUrl = req.file ? req.file.path : req.body.imageUrl;
 
   const newProduct = {
-    id: products.length + 1,
+    id: products.length ? products[products.length - 1].id + 1 : 1,
     name,
     description,
     price: parseFloat(price),
@@ -126,7 +89,7 @@ app.post('/shoes', upload.single('image'), (req, res) => {
   const imageUrl = req.file ? req.file.path : req.body.imageUrl;
 
   const newProduct = {
-    id: products.length + 1,
+    id: shoes.length ? shoes[shoes.length - 1].id + 1 : 1,
     name,
     description,
     price: parseFloat(price),
