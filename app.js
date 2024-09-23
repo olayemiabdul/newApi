@@ -2,34 +2,32 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 const path = require('path');
-const cors = require('cors'); 
+const cors = require('cors');
 const bodyParser = require('body-parser');
-const fs = require('fs'); 
+const fs = require('fs');
+const multer = require('multer');
 
 // Middleware to parse JSON and URL-encoded data
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json()); 
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 
+// Paths for data and images
 const dataPath = path.join(__dirname, 'data.json');
 const imagePath = path.join(__dirname, 'public/images');
-
-const multer = require('multer');
 const upload = multer({ dest: imagePath });
 
 // Serve images statically
 app.use('/images', express.static(imagePath));
 
-//  initialize data
+// Initialize data.json if not present
 if (!fs.existsSync(dataPath)) {
   fs.writeFileSync(dataPath, JSON.stringify({ products: [], shoes: [] }), 'utf-8');
 }
 
+// Load data from data.json
 let products = [];
 let shoes = [];
-
-// Load data from data.json
 const loadData = () => {
   try {
     const rawData = fs.readFileSync(dataPath, 'utf-8');
@@ -40,17 +38,12 @@ const loadData = () => {
     console.error('Error loading data:', error);
   }
 };
+loadData();
 
 // Save data to data.json
 const saveData = () => {
   fs.writeFileSync(dataPath, JSON.stringify({ products, shoes }, null, 2), 'utf-8');
 };
-
-
-loadData();
-
-// Variable to keep track of the last ID
-let lastId = products.length > shoes.length ? products[products.length - 1].id : shoes[shoes.length - 1].id;
 
 // Get all products
 app.get('/products', (req, res) => {
@@ -74,7 +67,6 @@ app.get('/shoes/:id', (req, res) => {
   const shoe = shoes.find(p => p.id === parseInt(req.params.id));
   if (!shoe) return res.status(404).json({ error: 'Shoe not found' });
   res.json(shoe);
-  console.log(shoes);
 });
 
 // POST - Add a new product
@@ -94,7 +86,6 @@ app.post('/products', upload.single('image'), (req, res) => {
   products.push(newProduct);
   saveData();
   res.status(201).json(newProduct);
-  console.log('Request to create product received:', req.body);
 });
 
 // POST - Add a new shoe
@@ -114,7 +105,6 @@ app.post('/shoes', upload.single('image'), (req, res) => {
   shoes.push(newShoe);
   saveData();
   res.status(201).json(newShoe);
-  console.log('Request to create shoe received:', req.body);
 });
 
 // PATCH - Partially update a product
@@ -124,8 +114,8 @@ app.patch('/products/:id', (req, res) => {
 
   if (req.body.name) product.name = req.body.name;
   if (req.body.description) product.description = req.body.description;
-  if (req.body.price) product.price = req.body.price;
-  if (req.body.quantity) product.quantity = req.body.quantity;
+  if (req.body.price) product.price = parseFloat(req.body.price);
+  if (req.body.quantity) product.quantity = parseInt(req.body.quantity);
   if (req.body.imageUrl) product.imageUrl = req.body.imageUrl;
 
   saveData();
@@ -139,8 +129,8 @@ app.patch('/shoes/:id', (req, res) => {
 
   if (req.body.name) shoe.name = req.body.name;
   if (req.body.description) shoe.description = req.body.description;
-  if (req.body.price) shoe.price = req.body.price;
-  if (req.body.quantity) shoe.quantity = req.body.quantity;
+  if (req.body.price) shoe.price = parseFloat(req.body.price);
+  if (req.body.quantity) shoe.quantity = parseInt(req.body.quantity);
   if (req.body.imageUrl) shoe.imageUrl = req.body.imageUrl;
 
   saveData();
@@ -158,8 +148,8 @@ app.put('/products/:id', (req, res) => {
     id: id,
     name: req.body.name,
     description: req.body.description,
-    price: req.body.price,
-    quantity: req.body.quantity,
+    price: parseFloat(req.body.price),
+    quantity: parseInt(req.body.quantity),
     imageUrl: req.body.imageUrl,
   };
 
@@ -179,8 +169,8 @@ app.put('/shoes/:id', (req, res) => {
     id: id,
     name: req.body.name,
     description: req.body.description,
-    price: req.body.price,
-    quantity: req.body.quantity,
+    price: parseFloat(req.body.price),
+    quantity: parseInt(req.body.quantity),
     imageUrl: req.body.imageUrl,
   };
 
